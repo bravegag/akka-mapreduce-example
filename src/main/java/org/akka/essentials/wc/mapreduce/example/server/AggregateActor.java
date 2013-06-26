@@ -35,8 +35,7 @@ public class AggregateActor extends UntypedActor {
 		if (taskInfo != null && completedTasksCount >= taskInfo.getNumberOfTasks()) {
 			PrintStream out = null;
 			try {
-				out = new PrintStream(new FileOutputStream(
-						"/Users/bravegag/Downloads/finaloutput.log"));
+				out = new PrintStream(new FileOutputStream("finaloutput.log"));
 				out.print(finalReducedMap.toString());
 			}
 			finally {

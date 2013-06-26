@@ -4,8 +4,11 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import akka.actor.*;
+import akka.event.*;
 
 public class ReduceActor extends UntypedActor {
+	final LoggingAdapter logger = Logging.getLogger(getContext().system(), this);
+
 	private ActorRef aggregateActor = null;
 
 	public ReduceActor(ActorRef aggregateActor) {
@@ -14,7 +17,7 @@ public class ReduceActor extends UntypedActor {
 
 	@Override
 	public void onReceive(Object message) throws Exception {
-		System.out.println("ReduceActor -> onReceive(" + message + ")");
+		logger.info(message.toString());
 		if (message instanceof List) {
 			@SuppressWarnings("unchecked")
 			List<Result> work = (List<Result>) message;

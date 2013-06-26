@@ -16,7 +16,7 @@ public class Client implements Bootable {
 				FileReadActor.class));
 
 		String remotePath = "akka.tcp://MapReduceApp@127.0.0.1:2552/user/masterActor";
-		ActorRef clientActor = system.actorOf(Props.create(ClientActor.class, remotePath, system));
+		ActorRef clientActor = system.actorOf(Props.create(ClientActor.class, remotePath));
 
 		fileReadActor.tell(fileName, clientActor);
 	}

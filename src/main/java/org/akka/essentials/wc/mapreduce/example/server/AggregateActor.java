@@ -6,8 +6,11 @@ import java.util.*;
 import org.akka.essentials.wc.mapreduce.example.common.*;
 
 import akka.actor.*;
+import akka.event.*;
 
 public class AggregateActor extends UntypedActor {
+	final LoggingAdapter logger = Logging.getLogger(getContext().system(), this);
+
 	private int completedTasksCount = 0;
 	private TaskInfo taskInfo = null;
 	private SortedMap<String, Integer> finalReducedMap = new TreeMap<String, Integer>();
@@ -17,7 +20,6 @@ public class AggregateActor extends UntypedActor {
 	 */
 	@Override
 	public void onReceive(Object message) throws Exception {
-		System.out.println("AggregateActor -> onReceive(" + message + ")");
 		if (message instanceof Map) {
 			completedTasksCount++;
 			@SuppressWarnings("unchecked")
@@ -29,9 +31,9 @@ public class AggregateActor extends UntypedActor {
 		}
 
 		// final outcome
-		System.out.println("completedTasksCount=" + completedTasksCount);
+		logger.info("completedTasksCount=" + completedTasksCount);
 		if (taskInfo != null)
-			System.out.println("taskInfo#numberOfTasks=" + taskInfo.getNumberOfTasks());
+			logger.info("taskInfo#numberOfTasks=" + taskInfo.getNumberOfTasks());
 		if (taskInfo != null && completedTasksCount >= taskInfo.getNumberOfTasks()) {
 			PrintStream out = null;
 			try {
@@ -43,7 +45,7 @@ public class AggregateActor extends UntypedActor {
 					out.close();
 			}
 
-			System.out.println("*** Now is really DONE!!!");
+			logger.info("*** now is really done!");
 		}
 	}
 

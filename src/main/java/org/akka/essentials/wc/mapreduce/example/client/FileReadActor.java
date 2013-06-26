@@ -5,8 +5,11 @@ import java.io.*;
 import org.akka.essentials.wc.mapreduce.example.common.*;
 
 import akka.actor.*;
+import akka.event.*;
 
 public class FileReadActor extends UntypedActor {
+	final LoggingAdapter logger = Logging.getLogger(getContext().system(), this);
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -24,12 +27,12 @@ public class FileReadActor extends UntypedActor {
 					getSender().tell(line, getSelf());
 					numberOfTasks++;
 				}
-				System.out.println("All lines send !");
+				logger.info("All lines send !");
 
 				getSender().tell(new TaskInfo(numberOfTasks), getSelf());
 			}
 			catch (IOException x) {
-				System.err.format("IOException: %s%n", x);
+				logger.error("IOException: %s%n", x);
 			}
 		}
 		else

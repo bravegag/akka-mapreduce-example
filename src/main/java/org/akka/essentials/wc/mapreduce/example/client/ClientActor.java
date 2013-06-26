@@ -5,12 +5,14 @@ import java.util.*;
 import org.akka.essentials.wc.mapreduce.example.common.*;
 
 import akka.actor.*;
+import akka.event.*;
 
 public class ClientActor extends UntypedActor {
+	final LoggingAdapter logger = Logging.getLogger(getContext().system(), this);
+
 	private ActorRef remoteServer = null;
 	private final List<String> dataBuffer = new ArrayList<String>();
 	private TaskInfo infoBuffer = null;
-	private final ActorSystem system;
 	@SuppressWarnings("unused")
 	private ActorRef fileReadActor = null;
 	private long start;
@@ -18,8 +20,7 @@ public class ClientActor extends UntypedActor {
 	/**
 	 * Constructor
 	 */
-	public ClientActor(String remotePath, ActorSystem system) {
-		this.system = system;
+	public ClientActor(String remotePath) {
 		sendIdentifyRequest(remotePath);
 	}
 
@@ -29,16 +30,16 @@ public class ClientActor extends UntypedActor {
 	@Override
 	public void onReceive(Object message) throws Exception {
 		if (message instanceof ActorIdentity) {
-			System.out.println("onReceive() actor identity received");
+			logger.info("actor identity received");
 			remoteServer = ((ActorIdentity) message).getRef();
 
 			// flush the buffers
 			for (int i = dataBuffer.size() - 1; i >= 0; i--) {
-				System.out.println("onReceive() sending to remote server");
+				logger.info("sending to remote server");
 				remoteServer.tell(dataBuffer.remove(i), getSelf());
 			}
 			if (infoBuffer != null) {
-				System.out.println("onReceive() buffer sending info");
+				logger.info("buffer sending info");
 				remoteServer.tell(infoBuffer, getSelf());
 				infoBuffer = null;
 			}
@@ -46,25 +47,25 @@ public class ClientActor extends UntypedActor {
 		} else
 		if (remoteServer == null) {
 			if (message instanceof TaskInfo) {
-				System.out.println("onReceive() info buffering");
+				logger.info("info buffering");
 				infoBuffer = (TaskInfo) message;
 
 			} else {
-				System.out.println("onReceive() data buffering");
+				logger.info("data buffering");
 				dataBuffer.add((String) message);
 			}
 		} else
 		if (message instanceof TaskInfo) {
-			System.out.println("onReceive() directly sending info");
+			logger.info("directly sending info");
 			remoteServer.tell(message, getSelf());
 
 		} else
 		if (message instanceof ShutdownInfo) {
-			System.out.println("onReceive() Shutdown signal received");
-			system.shutdown();
+			logger.info("Shutdown signal received");
+			getContext().system().shutdown();
 
 		} else {
-			System.out.println("onReceive() sending to remote server");
+			logger.info("sending to remote server");
 			remoteServer.tell(message, getSelf());
 		}
 	}
@@ -84,7 +85,7 @@ public class ClientActor extends UntypedActor {
 	public void postStop() {
 		// tell the world that the calculation is complete
 		long timeSpent = (System.currentTimeMillis() - start) / 1000;
-		System.out.println(String.format(
+		logger.info(String.format(
 				"\n\tClientActor estimate: \t\t\n\tCalculation time: \t%s Secs", timeSpent));
 	}
 

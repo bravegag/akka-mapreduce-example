@@ -3,8 +3,11 @@ package org.akka.essentials.wc.mapreduce.example.server;
 import org.akka.essentials.wc.mapreduce.example.common.*;
 
 import akka.actor.*;
+import akka.event.*;
 
 public class MasterActor extends UntypedActor {
+	final LoggingAdapter logger = Logging.getLogger(getContext().system(), this);
+
 	private final ActorRef mapActor;
 	private final ActorRef aggregateActor;
 	private ActorRef remoteActor;
@@ -19,7 +22,7 @@ public class MasterActor extends UntypedActor {
 			remoteActor = getSender();
 		}
 
-		System.out.println("MasterActor -> onReceive(" + message + ")");
+		logger.info("MasterActor -> onReceive(" + message + ")");
 		if (message instanceof TaskInfo) {
 			aggregateActor.tell(message, getSelf());
 

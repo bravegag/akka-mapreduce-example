@@ -7,8 +7,10 @@ import java.util.StringTokenizer;
 
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
+import akka.event.*;
 
 public class MapActor extends UntypedActor {
+	final LoggingAdapter logger = Logging.getLogger(getContext().system(), this);
 
 	String[] STOP_WORDS = { "a", "about", "above", "above", "across", "after", "afterwards",
 			"again", "against", "all", "almost", "alone", "along", "already", "also", "although",
@@ -78,14 +80,14 @@ public class MapActor extends UntypedActor {
 
 	// message handler
 	public void onReceive(Object message) {
-		System.out.println("MapActor -> onReceive(" + message + ")");
+		logger.info(message.toString());
 		if (message instanceof String) {
 			String work = (String) message;
 			if ("Thieves! thieves!".equals(work)) {
 				try {
-					System.out.println("*** sleeping!");
+					logger.info("*** sleeping!");
 					Thread.sleep(5000);
-					System.out.println("*** back!");
+					logger.info("*** back!");
 				}
 				catch (InterruptedException e) {
 					e.printStackTrace();
